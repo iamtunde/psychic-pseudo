@@ -23,7 +23,7 @@ jobs:
         uses: leonsteinhaeuser/project-beta-automations@v2.2.1
         with:
           gh_token: ${{ secrets.PROJECT_TOKEN }}
-          user_confirm: false
-          project_id: 'PVT_kwHOAHi5Vs4Bak-r'
+          operation_mode: "update"
+          project_id: "PVT_kwHOAHi5Vs4Bak-r"
           resource_node_id: ${{ steps.parse_issue.outputs.issue_number }}
-          status_value: 'In progress'
+          status_value: "In progress"
