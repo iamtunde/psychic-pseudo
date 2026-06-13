@@ -1,0 +1,29 @@
+name: Move Issue on Branch Creation
+
+on:
+  create:
+
+jobs:
+  update_project_status:
+    if: github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Issue Number
+        id: parse_issue
+        run: |
+          BRANCH_NAME="${{ github.event.ref }}
+          if [[ $BRANCH_NAME =~ [^0-9]*([0-9]+) ]]; then
+            echo "issue_number=${BRANCH_REMATCH[1]}" >> $GITHUB_OUTPUT
+            echo "Found issue number: ${BASH_REMATCH[1]}"
+          else
+            echo "No issue number found in branch name."
+            exit 0
+          fi
+      - name: Move Issue to In Progress
+        uses: leonsteinhaeuser/project-beta-automations@v2.2.1
+        with:
+          gh_token: ${{ secrets.PROJECT_TOKEN }}
+          user_confirm: false
+          project_id: 'PVT_kwHOAHi5Vs4Bak-r'
+          resource_node_id: ${{ steps.parse_issue.outputs.issue_number }}
+          status_value: 'In Progress'
