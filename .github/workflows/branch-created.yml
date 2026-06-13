@@ -26,4 +26,4 @@ jobs:
           user_confirm: false
           project_id: 'PVT_kwHOAHi5Vs4Bak-r'
           resource_node_id: ${{ steps.parse_issue.outputs.issue_number }}
-          status_value: 'In Progress'
+          status_value: 'In progress'
