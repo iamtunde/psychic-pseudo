@@ -14,16 +14,28 @@ jobs:
           BRANCH_NAME="${{ github.event.ref }}"
           if [[ $BRANCH_NAME =~ [^0-9]*([0-9]+) ]]; then
             echo "issue_number=${BRANCH_REMATCH[1]}" >> $GITHUB_OUTPUT
-            echo "Found issue number: ${BASH_REMATCH[1]}"
+            echo "Found issue number: ${BRANCH_REMATCH[1]}"
           else
             echo "No issue number found in branch name."
             exit 0
           fi
+
+      - name: Fetch Issue Node IDd
+        id: fetch_node_id
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: |
+          ISSUE_NUM="${{ steps.parse_issue.outputs.issue_number }}"
+          NODE_ID=$(gh issue view "$ISSUE_NUM" --repo "${{ github.repository }}" --json id --jq '.id')
+          echo "node_id=$NODE_ID" >> $GITHUB_OUTPUT
+
       - name: Move Issue to In Progress
         uses: leonsteinhaeuser/project-beta-automations@v2.2.1
         with:
           gh_token: ${{ secrets.PROJECT_TOKEN }}
           operation_mode: "update"
           project_id: "PVT_kwHOAHi5Vs4Bak-r"
-          resource_node_id: ${{ steps.parse_issue.outputs.issue_number }}
+          resource_node_id: ${{ steps.fetch_node_id.outputs.node_id }}
           status_value: "In progress"
+          user: "iamtunde"
+          #organization: 'risevest'
