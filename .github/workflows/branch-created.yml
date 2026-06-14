@@ -20,16 +20,6 @@ jobs:
             exit 0
           fi
 
-      - name: Fetch Issue Node ID
-        if: steps.parse_issue.outputs.issue_number != ''
-        id: fetch_node_id
-        env:
-          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
-        run: |
-          ISSUE_NUM="${{ steps.parse_issue.outputs.issue_number }}"
-          NODE_ID=$(gh issue view "$ISSUE_NUM" --repo "${{ github.repository }}" --json id --jq '.id')
-          echo "node_id=$NODE_ID" >> $GITHUB_OUTPUT
-
       - name: Move Issue to In Progress
         uses: leonsteinhaeuser/project-beta-automations@v2.2.1
         with:
