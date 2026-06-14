@@ -24,11 +24,15 @@ jobs:
         if: steps.parse_issue.outputs.issue_number != ''
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          BRANCH_AUTHOR: ${{ github.actor }}
         run: |
           # 1. Setup variables (UPDATE THESE THREE VALUES)
           PROJECT_NUMBER="1" 
           OWNER="iamtunde"
-          ISSUE_URL="https://github.com/${{ github.repository }}/issues/${{ steps.parse_issue.outputs.issue_number }}"
+          ISSUE_NUMBER="${{ steps.parse_issue.outputs.issue_number }}"
+          ISSUE_URL="https://github.com/${{ github.repository }}/issues/$ISSUE_NUMBER"
+          
+          echo "Working branch created by: $BRANCH_AUTHOR"
           
           echo "Fetching global Project ID..."
           PROJECT_ID=$(gh project view "$PROJECT_NUMBER" --owner "$OWNER" --format json --jq '.id')
@@ -49,3 +53,8 @@ jobs:
             --project-id "$PROJECT_ID" \
             --field-id "$STATUS_FIELD_ID" \
             --single-select-option-id "$OPTION_ID" || echo "Issue is already 'In progress' or no changes were required."
+          
+          echo "Assigning issue #$ISSUE_NUMBER to $BRANCH_AUTHOR..."
+          # Optional: Automatically assigns the issue to the person who created the branch
+          gh issue edit "$ISSUE_NUMBER" --repo "${{ github.repository }}" --add-assignee "$BRANCH_AUTHOR"
+          
