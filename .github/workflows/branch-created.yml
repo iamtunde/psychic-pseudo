@@ -38,10 +38,14 @@ jobs:
           STATUS_FIELD_ID=$(echo "$STATUS_DATA" | jq -r '.id') 
           
           # Matches "In Progress" regardless of uppercase/lowercase text mapping
-          OPTION_ID=$(echo "$STATUS_DATA" | jq -r '.options[] | select(.name | ascii_downcase == "In progress") | .id')
+          OPTION_ID=$(echo "$STATUS_DATA" | jq -r '.options[] | select(.name | ascii_downcase == "in progress") | .id')
           
           echo "Adding/Finding issue on project board..."
           ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" --format json --jq '.id')
           
           echo "Moving project item $ITEM_ID to 'In progress'..."
-          gh project item-edit --id "$ITEM_ID" --project-id "$PROJECT_ID" --field-id "$STATUS_FIELD_ID" --single-select-option-id "$OPTION_ID"
+          gh project item-edit \
+            --id "$ITEM_ID" \
+            --project-id "$PROJECT_ID" \
+            --field-id "$STATUS_FIELD_ID" \
+            --single-select-option-id "$OPTION_ID" || echo "Issue is already 'In progress' or no changes were required."
