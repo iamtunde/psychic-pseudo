@@ -31,7 +31,7 @@ jobs:
           ISSUE_URL="https://github.com/${{ github.repository }}/issues/${{ steps.parse_issue.outputs.issue_number }}"
           
           echo "Adding/Finding issue on project board..."
-          ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" --json id --jq '.id')
+          ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" --format json --jq '.id')
           
           echo "Moving project item $ITEM_ID to 'In progress'..."
           gh project item-edit "$PROJECT_NUMBER" --owner "$OWNER" --id "$ITEM_ID" --field "Status" --value "In progress"
