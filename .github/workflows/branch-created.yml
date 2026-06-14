@@ -26,14 +26,12 @@ jobs:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
         run: |
           # 1. Setup variables (UPDATE THESE THREE VALUES)
-          PROJECT_NUMBER="1"                  # The integer number from your project URL
-          OWNER="iamtunde" # Your username or organization name
+          PROJECT_NUMBER="1" 
+          OWNER="iamtunde"
           ISSUE_URL="https://github.com/${{ github.repository }}/issues/${{ steps.parse_issue.outputs.issue_number }}"
           
           echo "Adding/Finding issue on project board..."
-          # This command returns the correct 'Project Item ID' instead of the Issue ID
           ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" --json id --jq '.id')
           
           echo "Moving project item $ITEM_ID to 'In progress'..."
-          # Double check if your board uses "In progress" or "In Progress" (case-sensitive)
           gh project item-edit "$PROJECT_NUMBER" --owner "$OWNER" --id "$ITEM_ID" --field "Status" --value "In progress"
