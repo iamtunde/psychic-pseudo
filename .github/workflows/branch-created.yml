@@ -20,23 +20,20 @@ jobs:
             exit 0
           fi
 
-      - name: Fetch Issue Node ID
+      - name: Move Issue to In Progress
         if: steps.parse_issue.outputs.issue_number != ''
-        id: fetch_node_id
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
         run: |
-          ISSUE_NUM="${{ steps.parse_issue.outputs.issue_number }}"
-          NODE_ID=$(gh issue view "$ISSUE_NUM" --repo "${{ github.repository }}" --json id --jq '.id')
-          echo "node_id=$NODE_ID" >> $GITHUB_OUTPUT
-
-      - name: Move Issue to In Progress
-        uses: leonsteinhaeuser/project-beta-automations@v2.2.1
-        with:
-          gh_token: ${{ secrets.PROJECT_TOKEN }}
-          operation_mode: "update"
-          project_id: "PVT_kwHOAHi5Vs4Bak-r"
-          resource_node_id: ${{ steps.parse_issue.outputs.issue_number }}
-          status_value: "In progress"
-          user: "iamtunde"
-          #organization: 'risevest'
+          # 1. Setup variables (UPDATE THESE THREE VALUES)
+          PROJECT_NUMBER="1"                  # The integer number from your project URL
+          OWNER="iamtunde" # Your username or organization name
+          ISSUE_URL="https://github.com/${{ github.repository }}/issues/${{ steps.parse_issue.outputs.issue_number }}"
+          
+          echo "Adding/Finding issue on project board..."
+          # This command returns the correct 'Project Item ID' instead of the Issue ID
+          ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" --json id --jq '.id')
+          
+          echo "Moving project item $ITEM_ID to 'In progress'..."
+          # Double check if your board uses "In progress" or "In Progress" (case-sensitive)
+          gh project item-edit "$PROJECT_NUMBER" --owner "$OWNER" --id "$ITEM_ID" --field "Status" --value "In progress"
