@@ -20,7 +20,8 @@ jobs:
             exit 0
           fi
 
-      - name: Fetch Issue Node IDd
+      - name: Fetch Issue Node ID
+        if: steps.parse_issue.outputs.issue_number != ''
         id: fetch_node_id
         env:
           GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
@@ -35,7 +36,7 @@ jobs:
           gh_token: ${{ secrets.PROJECT_TOKEN }}
           operation_mode: "update"
           project_id: "PVT_kwHOAHi5Vs4Bak-r"
-          resource_node_id: ${{ steps.fetch_node_id.outputs.node_id }}
+          resource_node_id: ${{ steps.parse_issue.outputs.issue_number }}
           status_value: "In progress"
           user: "iamtunde"
           #organization: 'risevest'
