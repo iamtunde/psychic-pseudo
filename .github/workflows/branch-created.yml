@@ -30,8 +30,19 @@ jobs:
           OWNER="iamtunde"
           ISSUE_URL="https://github.com/${{ github.repository }}/issues/${{ steps.parse_issue.outputs.issue_number }}"
           
+          echo "Fetching global Project ID..."
+          PROJECT_ID=$(gh project view "$PROJECT_NUMBER" --owner "$OWNER" --format json --jq '.id')
+          
+          echo "Fetching project field options..."
+          # 3. Pull the precise Status Field ID and the Option ID for "In Progress"
+          STATUS_DATA=$(gh project field-list $PROJECT_NUMBER --owner $OWNER --format json | jq -r '.fields[] | select(.name=="Status")')
+          STATUS_FIELD_ID=$(echo "$STATUS_DATA" | jq -r '.id') 
+          
+          # Matches "In Progress" regardless of uppercase/lowercase text mapping
+          OPTION_ID=$(echo "$STATUS_DATA" | jq -r '.options[] | select(.name | ascii_downcase == "In progress") | .id')
+          
           echo "Adding/Finding issue on project board..."
           ITEM_ID=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" --format json --jq '.id')
           
           echo "Moving project item $ITEM_ID to 'In progress'..."
-          gh project item-edit "$PROJECT_NUMBER" --owner "$OWNER" --id "$ITEM_ID" --field "Status" --value "In progress"
+          gh project item-edit "$PROJECT_NUMBER" --project-id "$PROJECT_ID" --id "$ITEM_ID" --field-id "$STATUS_FIELD_ID" --single-select-option-id "$OPTION_ID"
